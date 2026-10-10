@@ -17,7 +17,8 @@
 | 字段 | 说明 |
 |------|------|
 | `bookId` | 书籍 ID |
-| `deepLink` | 跳转链接；展示时直接作为 `[打开阅读]({deepLink})` 使用 |
+| `readerLink` | 阅读器跳转链接；展示为 `[打开阅读]({readerLink})` |
+| `deepLink` | 书籍详情跳转链接；没有 `readerLink` 时可展示为 `[查看详情]({deepLink})` |
 | `title` | 书名 |
 | `author` | 作者 |
 | `translator` | 译者 |

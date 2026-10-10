@@ -79,7 +79,8 @@
 | `results[].books[].searchIdx` | 搜索序号（用于翻页） |
 | `results[].books[].bookInfo` | 书籍信息对象 |
 | `results[].books[].bookInfo.bookId` | 书籍唯一标识 |
-| `results[].books[].bookInfo.deepLink` | 跳转链接；展示时直接作为 `[打开阅读]({deepLink})` 使用 |
+| `results[].books[].bookInfo.readerLink` | 阅读器跳转链接；展示为 `[打开阅读]({readerLink})` |
+| `results[].books[].bookInfo.deepLink` | 书籍详情跳转链接；没有 `readerLink` 时可展示为 `[查看详情]({deepLink})` |
 | `results[].books[].bookInfo.title` | 书名 |
 | `results[].books[].bookInfo.author` | 作者 |
 | `results[].books[].bookInfo.cover` | 封面图 URL |
@@ -100,7 +101,7 @@
 
 1. 根据用户意图选择 `scope`，调 `/store/search`，并显式传入 `scope`。
 2. 从 `results` 取搜索结果。单 tab 模式（scope>0）可能返回多个同类分组；全部模式（scope=0）有多个分组。
-3. 展示结果：书名、作者、评分、在读人数、分类。已下架（soldout=1）需标注；如有 `deepLink`，展示为 `[打开阅读]({deepLink})`。
+3. 展示结果：书名、作者、评分、在读人数、分类。已下架（soldout=1）需标注；如有 `readerLink`，展示为 `[打开阅读]({readerLink})`；否则如有 `deepLink`，展示为 `[查看详情]({deepLink})`。
 4. 用户选择某本书后，调 `/book/info` 获取完整信息。
 5. 翻页：`hasMore` 为 1 时，用最后一条的 `searchIdx` 作为下一页的 `maxIdx`。
 

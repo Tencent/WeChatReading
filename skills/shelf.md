@@ -23,7 +23,8 @@
 |------|------|
 | `books[]` | 可枚举的电子书/导入书/公众号类书籍条目数组，不含 `albums[]`，也不含 `mp` 文章收藏入口 |
 | `books[].bookId` | 书籍唯一标识 |
-| `books[].deepLink` | 跳转链接；展示时直接作为 `[打开阅读]({deepLink})` 使用 |
+| `books[].readerLink` | 阅读器跳转链接；展示为 `[打开阅读]({readerLink})` |
+| `books[].deepLink` | 书籍详情跳转链接；没有 `readerLink` 时可展示为 `[查看详情]({deepLink})` |
 | `books[].title` | 书名 |
 | `books[].author` | 作者 |
 | `books[].cover` | 封面图 URL |

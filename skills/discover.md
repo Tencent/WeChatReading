@@ -19,7 +19,8 @@
 |------|------|
 | `books` | 推荐书籍数组 |
 | `books[].bookId` | 书籍 ID |
-| `books[].deepLink` | 跳转链接；展示时直接作为 `[打开阅读]({deepLink})` 使用 |
+| `books[].readerLink` | 阅读器跳转链接；展示为 `[打开阅读]({readerLink})` |
+| `books[].deepLink` | 书籍详情跳转链接；没有 `readerLink` 时可展示为 `[查看详情]({deepLink})` |
 | `books[].title` | 书名 |
 | `books[].author` | 作者 |
 | `books[].cover` | 封面图 URL |
@@ -58,7 +59,8 @@
 | `booksimilar.books` | 推荐书籍数组 |
 | `booksimilar.books[].idx` | 结果序号（下次请求 maxIdx 传最后一条的 idx） |
 | `booksimilar.books[].book.bookInfo` | 书籍信息（bookId, title, author, cover 等） |
-| `booksimilar.books[].book.bookInfo.deepLink` | 跳转链接；展示时直接作为 `[打开阅读]({deepLink})` 使用 |
+| `booksimilar.books[].book.bookInfo.readerLink` | 阅读器跳转链接；展示为 `[打开阅读]({readerLink})` |
+| `booksimilar.books[].book.bookInfo.deepLink` | 书籍详情跳转链接；没有 `readerLink` 时可展示为 `[查看详情]({deepLink})` |
 
 ## 工作流
 
