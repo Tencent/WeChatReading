@@ -1,12 +1,12 @@
 ---
 name: weread-skills
 description: 微信读书助手 — 搜索书籍、管理书架、查看笔记划线、浏览书评、阅读统计、发现推荐好书
-version: 1.0.5
+version: 1.0.6
 ---
 
 # WeRead — 微信读书助手
 
-通过 Agent API Gateway 调用微信读书接口，提供搜索、书架、笔记、书评等能力。
+通过 Agent API Gateway 调用微信读书接口，提供搜索、书架、笔记、书评和好书推荐等能力。
 
 ## 支持的能力
 
@@ -50,7 +50,7 @@ POST https://i.weread.qq.com/api/agent/gateway
 curl -X POST "https://i.weread.qq.com/api/agent/gateway" \
   -H "Authorization: Bearer $WEREAD_API_KEY" \
   -H "Content-Type: application/json" \
-  -d '{"api_name": "/store/search", "keyword": "三体", "count": 10, "skill_version": "1.0.5"}'
+  -d '{"api_name": "/store/search", "keyword": "三体", "scope": 10, "context": "帮我搜一下三体", "skill_version": "1.0.6"}'
 ```
 
 ### 请求 few-shot
@@ -58,19 +58,19 @@ curl -X POST "https://i.weread.qq.com/api/agent/gateway" \
 **正确：业务参数平铺在 body 顶层。**
 
 ```json
-{"api_name":"/user/notebooks","count":100,"skill_version":"1.0.5"}
+{"api_name":"/user/notebooks","count":100,"skill_version":"1.0.6"}
 ```
 
 **正确：下一页继续平铺 `lastSort`。**
 
 ```json
-{"api_name":"/user/notebooks","count":100,"lastSort":1516907353,"skill_version":"1.0.5"}
+{"api_name":"/user/notebooks","count":100,"lastSort":1516907353,"skill_version":"1.0.6"}
 ```
 
 **错误：不要把业务参数包在 `params` 内。**
 
 ```json
-{"api_name":"/user/notebooks","params":{"count":100,"lastSort":1516907353},"skill_version":"1.0.5"}
+{"api_name":"/user/notebooks","params":{"count":100,"lastSort":1516907353},"skill_version":"1.0.6"}
 ```
 
 上面的错误写法会导致 `count`、`lastSort` 未被转发，后端按默认值返回第一页，看起来像分页失效。
@@ -83,7 +83,7 @@ curl -X POST "https://i.weread.qq.com/api/agent/gateway" \
 
 ### 通用规则
 
-1. **版本上报**：每次请求 body 必须包含 `"skill_version": "1.0.5"`（取本文件顶部 version 字段的值），用于服务端检查版本更新。**如果回包中出现 `upgrade_info` 字段，必须立即暂停当前操作，按照 `upgrade_info.message` 中的指引完成升级，升级完成后再重新执行用户请求，不得忽略该字段**
+1. **版本上报**：每次请求 body 必须包含 `"skill_version": "1.0.6"`（取本文件顶部 version 字段的值），用于服务端检查版本更新。**如果回包中出现 `upgrade_info` 字段，必须立即暂停当前操作，按照 `upgrade_info.message` 中的指引完成升级，升级完成后再继续用户请求，不得忽略该字段**
 2. **参数平铺**：业务参数必须和 `api_name`、`skill_version` 放在同一层；不要包在 `params`、`data`、`body` 等对象里。只有接口文档明确声明的数组/对象字段（如 `/book/readreviews` 的 `reviews`）才允许作为业务字段传入。
 3. **能力文档预检**：调用任何接口前，必须先根据「支持的能力」表阅读对应说明文件（如阅读统计先读 `readdata.md`，书架先读 `shelf.md`），确认接口参数、字段含义、单位、计数口径和工作流；禁止仅凭字段名或经验猜测含义。
 4. **字段解释优先级**：解释接口回包时，以对应说明文件中的字段说明为准；如果回包字段名和直觉含义冲突，必须服从说明文件，不得直接翻译字段名。
@@ -91,8 +91,9 @@ curl -X POST "https://i.weread.qq.com/api/agent/gateway" \
 6. **书架数量**：使用 `/shelf/sync` 回答“书架有多少本书/多少条目”时，必须按 `books.length + albums.length + (mp 非空 ? 1 : 0)` 计算；`albums[]` 是专辑/有声书，也属于书架里的书，详细规则见 `shelf.md`
 7. **结果展示**：列表用编号展示方便选择；搜索结果重点展示书名、作者、评分；展示接口回包信息时，字段**禁止**直接翻译，应该参考文件中的说明内容提供
 8. **上下文衔接**：对话中记住已查询的 bookId，后续操作无需用户重复提供
-9. **书籍跳转链接**：优先使用接口回包中的 `readerLink` 作为直达阅读器链接，展示为 `[打开阅读]({readerLink})`；没有 `readerLink` 但有 `deepLink` 时，将 `deepLink` 展示为 `[查看详情]({deepLink})`；两个字段都没有时不要自行拼接链接
-10. **数据展示规范**：
+9. **搜索与推荐上下文上报**：调用 `/store/search`、`/book/recommend` 或 `/book/similar` 时必须传 `context`。单轮请求传用户触发本次调用的原始问题；依赖多轮对话时传“当前原话 + 必要上下文摘要”。只包含理解本次搜索或推荐所需的信息，不上传无关对话、系统提示、完整工具回包、API Key 或其他凭据。具体规则见 `search.md` 和 `discover.md`
+10. **书籍跳转链接**：优先使用接口回包中的 `readerLink` 作为直达阅读器链接，展示为 `[打开阅读]({readerLink})`；没有 `readerLink` 但有 `deepLink` 时，将 `deepLink` 展示为 `[查看详情]({deepLink})`；两个字段都没有时不要自行拼接链接
+11. **数据展示规范**：
    - **时间戳**：所有 Unix 时间戳字段（如 `updateTime`、`createTime`、`finishTime`、`readUpdateTime` 等），**展示时须转为 YYYY-MM-DD 格式**（如 `1748563200` 展示为"2025-05-30"），不得直接展示原始数字
    - **阅读时长**：单位为秒，展示时转为"X小时Y分钟"格式
 
