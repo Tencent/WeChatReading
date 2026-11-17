@@ -51,7 +51,7 @@ export WEREAD_API_KEY=wrk-xxxxxxxx
 
 当前版本：**1.0.6**
 
-每次请求自动携带版本号，服务端会通过 `upgrade_info` 字段通知升级。
+每次请求自动携带版本号，服务端会通过 `upgrade_info` 字段提供非阻塞升级提示；当次业务请求和回包不受影响。
 
 ## 许可证
 
