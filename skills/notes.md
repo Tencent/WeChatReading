@@ -24,10 +24,11 @@
 |------|------|
 | `totalBookCount` | 有笔记的书籍总数 |
 | `totalNoteCount` | 笔记总条数，统计口径为 `reviewCount + noteCount + bookmarkCount` 的汇总 |
+| `noBookReviewCount` | 不依附任何书籍的独立想法条数（只给数量，内容当前无法导出） |
 | `hasMore` | 是否有更多（1=有） |
 | `books[].bookId` | 书籍 ID |
 | `books[].book` | 书籍信息（title, author, cover 等） |
-| `books[].reviewCount` | 想法/点评数：包含划线想法、书评想法/个人点评、书摘、非书籍想法等个人内容 |
+| `books[].reviewCount` | 想法/点评数：该书下的划线想法、书评想法/个人点评、书摘等个人内容 |
 | `books[].noteCount` | 划线数（高亮标注的原文条数） |
 | `books[].bookmarkCount` | 书签数（标记阅读位置的条数；只作为数量统计，当前不导出书签内容） |
 | `books[].readingProgress` | 阅读进度 |
@@ -40,6 +41,9 @@
 - `/user/notebooks` 不返回 `highlightCount` 字段；如果用户或上游说“高亮数/划线数”，对应字段是 `noteCount`。
 - `reviewCount` 已包含个人点评/书评想法，因此计算总笔记数时不要再额外加“点评数”，否则会重复计算。
 - `/user/notebooks` 概览无法把 `reviewCount` 拆成“划线想法”和“个人点评”的独立数量；如需内容明细，需继续查询 `/review/list/mine`。
+- `noBookReviewCount` 是顶层字段，统计的是**不依附任何书籍的独立想法**（例如把书中段落或别人的想法转发出去后生成的独立帖子）。它不计入任何一本书的 `reviewCount`，因为 `books[]` 是按书聚合的。
+- `noBookReviewCount` 只提供数量，**当前没有接口能列出这些独立想法的内容**：所有取内容的接口（`/review/list/mine`、`/book/bookmarklist`）都强制要求 `bookid`，`bookid` 传 `"0"`、`"nobook"` 会返回 `-2003 参数格式错误`，传 `"-1"` 返回空列表。回答“我有多少条没挂书的想法”时用 `noBookReviewCount`；用户要求导出这类内容时，如实说明当前不可导出，不要用其他书的想法凑数。
+- 书签同理：`bookmarkCount` 只有数量，`/book/bookmarklist` 已过滤书签，不能导出书签内容。
 
 #### 分页规则
 - `/user/notebooks` 使用基于时间排序值的游标分页，不支持 `offset`/`limit` 分页。
